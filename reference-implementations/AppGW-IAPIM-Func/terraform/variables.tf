@@ -1,7 +1,7 @@
 variable "workload_name" {
   type        = string
   description = "A short name for the workload being deployed"
-  default     = "proy"
+  default     = "crsv1"
   validation {
     condition = (
       can(regex("^[a-zA-Z0-9]{3,8}$", var.workload_name))
@@ -85,6 +85,7 @@ variable "app_gateway_certificate_type" {
 variable "vm_username" {
   type        = string
   description = "Agent VM username"
+  default     = "vm_admin"
 }
 
 variable "vm_password" {
