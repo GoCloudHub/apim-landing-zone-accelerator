@@ -68,7 +68,7 @@ resource "azurerm_linux_function_app" "function_app" {
     }
 
     ip_restriction {
-      virtual_network_subnet_id = var.backend_subnet_id
+      virtual_network_subnet_id = var.apim_subnet_id
     }
   }
 
@@ -110,7 +110,7 @@ resource "azurerm_linux_function_app" "function_app_container" {
     }
 
     ip_restriction {
-      virtual_network_subnet_id = var.backend_subnet_id
+      virtual_network_subnet_id = var.apim_subnet_id
     }
   }
 

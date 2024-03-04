@@ -28,7 +28,7 @@ variable "sp_sku" {
   type    = string
 }
 
-variable "backend_subnet_id" {
-  description = "Backend resources subnet id"
+variable "apim_subnet_id" {
+  description = "API Management resources subnet id"
   type        = string
 }

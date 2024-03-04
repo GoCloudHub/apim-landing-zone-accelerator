@@ -88,5 +88,5 @@ module "backend" {
   resource_suffix   = module.resource_suffix.name
   workload_name     = var.workload_name
   location          = local.resource_location
-  backend_subnet_id = module.networking.backend_subnet_id
+  apim_subnet_id    = module.networking.apim_subnet_id
 }
