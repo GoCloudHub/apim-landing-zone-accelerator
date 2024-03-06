@@ -98,33 +98,33 @@ resource "azurerm_subnet_network_security_group_association" "appgateway_subnet_
 resource "azurerm_subnet" "private_endpoint_subnet" {
   name                 = local.private_endpoint_subnet_name
   address_prefixes     = [var.private_endpoint_address_prefix]
-  //security_group       = azurerm_network_security_group.private_endpoint_snnsg_nsg.id
+  //security_group       = azurerm_network_security_group.private_endpoint_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
 }
 
 resource "azurerm_subnet_network_security_group_association" "private_endpoint_subnet_nsg" {
   subnet_id                 = azurerm_subnet.private_endpoint_subnet.id
-  network_security_group_id = azurerm_network_security_group.private_endpoint_snnsg_nsg.id
+  network_security_group_id = azurerm_network_security_group.private_endpoint_nsg.id
 }
 
 resource "azurerm_subnet" "backend_subnet" {
   name                 = local.backend_subnet_name
   address_prefixes     = [var.backend_address_prefix]
-  //security_group       = azurerm_network_security_group.backend_snnsg_nsg.id
+  //security_group       = azurerm_network_security_group.backend_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
 }
 
 resource "azurerm_subnet_network_security_group_association" "backend_subnet_nsg" {
   subnet_id                 = azurerm_subnet.backend_subnet.id
-  network_security_group_id = azurerm_network_security_group.backend_snnsg_nsg.id
+  network_security_group_id = azurerm_network_security_group.backend_nsg.id
 }
 
 resource "azurerm_subnet" "apim_subnet" {
   name                 = local.apim_subnet_name
   address_prefixes     = [var.apim_address_prefix]
-  //security_group       = azurerm_network_security_group.apim_snnsg_nsg.id
+  //security_group       = azurerm_network_security_group.apim_nsg.id
   service_endpoints    = ["Microsoft.Web"]
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
@@ -132,7 +132,7 @@ resource "azurerm_subnet" "apim_subnet" {
 
 resource "azurerm_subnet_network_security_group_association" "apim_subnet_nsg" {
   subnet_id                 = azurerm_subnet.apim_subnet.id
-  network_security_group_id = azurerm_network_security_group.apim_snnsg_nsg.id
+  network_security_group_id = azurerm_network_security_group.apim_nsg.id
 }
 
 
@@ -309,21 +309,21 @@ resource "azurerm_network_security_group" "appgateway_nsg" {
 }
 
 //Private Endpoint SNNSG NSG
-resource "azurerm_network_security_group" "private_endpoint_snnsg_nsg" {
+resource "azurerm_network_security_group" "private_endpoint_nsg" {
   name                = local.private_endpoint_snnsg
   location            = azurerm_resource_group.networking_resource_group.location
   resource_group_name = azurerm_resource_group.networking_resource_group.name
 }
 
 //Backend SNNSG NSG
-resource "azurerm_network_security_group" "backend_snnsg_nsg" {
+resource "azurerm_network_security_group" "backend_nsg" {
   name                = local.backend_snnsg
   location            = azurerm_resource_group.networking_resource_group.location
   resource_group_name = azurerm_resource_group.networking_resource_group.name
 }
 
 //APIM SNNSG NSG
-resource "azurerm_network_security_group" "apim_snnsg_nsg" {
+resource "azurerm_network_security_group" "apim_nsg" {
   name                = local.apim_snnsg
   location            = azurerm_resource_group.networking_resource_group.location
   resource_group_name = azurerm_resource_group.networking_resource_group.name
