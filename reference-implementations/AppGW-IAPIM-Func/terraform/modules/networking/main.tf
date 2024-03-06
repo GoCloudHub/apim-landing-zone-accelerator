@@ -45,59 +45,94 @@ resource "azurerm_virtual_network" "apim_cs_vnet" {
 
 resource "azurerm_subnet" "bastion_subnet" {
   name                 = local.bastion_subnet_name
-  address_prefixes     = var.bastion_address_prefix
-  security_group       = azurerm_network_security_group.bastion_nsg.id
+  address_prefixes     = [var.bastion_address_prefix]
+  //security_group       = azurerm_network_security_group.bastion_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "bastion_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.bastion_subnet.id
+  network_security_group_id = azurerm_network_security_group.bastion_nsg.id
 }
 
 resource "azurerm_subnet" "devops_subnet" {
   name                 = local.devops_subnet_name
-  address_prefixes     = var.devops_name_address_prefix
-  security_group       = azurerm_network_security_group.devops_nsg.id
+  address_prefixes     = [var.devops_name_address_prefix]
+  //security_group       = azurerm_network_security_group.devops_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "devops_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.devops_subnet.id
+  network_security_group_id = azurerm_network_security_group.devops_nsg.id
 }
 
 resource "azurerm_subnet" "jumpbox_subnet" {
   name                 = local.jumpbox_subnet_name
-  address_prefixes     = var.jumpbox_address_prefix
-  security_group       = azurerm_network_security_group.jumpbox_nsg.id
+  address_prefixes     = [var.jumpbox_address_prefix]
+  //security_group       = azurerm_network_security_group.jumpbox_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "jumpbox_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.jumpbox_subnet.id
+  network_security_group_id = azurerm_network_security_group.jumpbox_nsg.id
 }
 
 resource "azurerm_subnet" "appgateway_subnet" {
   name                 = local.appgateway_subnet_name
-  address_prefixes     = var.appgateway_address_prefix
-  security_group       = azurerm_network_security_group.appgateway_nsg.id
+  address_prefixes     = [var.appgateway_address_prefix]
+  //security_group       = azurerm_network_security_group.appgateway_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "appgateway_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.appgateway_subnet.id
+  network_security_group_id = azurerm_network_security_group.appgateway_nsg.id
 }
 
 resource "azurerm_subnet" "private_endpoint_subnet" {
   name                 = local.private_endpoint_subnet_name
-  address_prefixes     = var.private_endpoint_address_prefix
-  security_group       = azurerm_network_security_group.private_endpoint_snnsg_nsg.id
+  address_prefixes     = [var.private_endpoint_address_prefix]
+  //security_group       = azurerm_network_security_group.private_endpoint_snnsg_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "private_endpoint_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.private_endpoint_subnet.id
+  network_security_group_id = azurerm_network_security_group.private_endpoint_snnsg_nsg.id
 }
 
 resource "azurerm_subnet" "backend_subnet" {
   name                 = local.backend_subnet_name
-  address_prefixes     = var.backend_address_prefix
-  security_group       = azurerm_network_security_group.backend_snnsg_nsg.id
+  address_prefixes     = [var.backend_address_prefix]
+  //security_group       = azurerm_network_security_group.backend_snnsg_nsg.id
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
 }
 
+resource "azurerm_subnet_network_security_group_association" "backend_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.backend_subnet.id
+  network_security_group_id = azurerm_network_security_group.backend_snnsg_nsg.id
+}
+
 resource "azurerm_subnet" "apim_subnet" {
   name                 = local.apim_subnet_name
-  address_prefixes     = var.apim_address_prefix
-  security_group       = azurerm_network_security_group.apim_snnsg_nsg.id
+  address_prefixes     = [var.apim_address_prefix]
+  //security_group       = azurerm_network_security_group.apim_snnsg_nsg.id
   service_endpoints    = ["Microsoft.Web"]
   resource_group_name  = azurerm_resource_group.networking_resource_group.name
   virtual_network_name = azurerm_virtual_network.apim_cs_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "apim_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.apim_subnet.id
+  network_security_group_id = azurerm_network_security_group.apim_snnsg_nsg.id
 }
 
 
