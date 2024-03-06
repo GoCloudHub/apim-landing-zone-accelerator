@@ -75,9 +75,10 @@ resource "azurerm_virtual_network" "apim_cs_vnet" {
   }
 
   subnet {
-    name           = local.apim_subnet_name
-    address_prefix = var.apim_address_prefix
-    security_group = azurerm_network_security_group.apim_snnsg_nsg.id
+    name              = local.apim_subnet_name
+    address_prefix    = var.apim_address_prefix
+    security_group    = azurerm_network_security_group.apim_snnsg_nsg.id
+    service_endpoints = ["Microsoft.Web"]
   }
 
   tags = {
