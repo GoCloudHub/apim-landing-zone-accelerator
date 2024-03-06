@@ -84,9 +84,9 @@ module "application_gateway" {
 # calling the Backend module
 #-------------------------------
 module "backend" {
-  source            = "./modules/backend"
-  resource_suffix   = module.resource_suffix.name
-  workload_name     = var.workload_name
-  location          = local.resource_location
-  apim_subnet_id    = module.networking.apim_subnet_id
+  source          = "./modules/backend"
+  resource_suffix = module.resource_suffix.name
+  workload_name   = var.workload_name
+  location        = local.resource_location
+  apim_subnet_id  = module.networking.apim_subnet_id
 }
