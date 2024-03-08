@@ -183,7 +183,7 @@ e.) Switch from the 'Secrets' tab to the 'Variables' tab and add the variable `W
 
 ### 6. Run the workflow
 
-The original instructions for this step which describe how to deploy using bicep are listed in the paragraphs below. You can deploy also using Terraform, rather than using bicep. This involves manually running two workflows; first run the `Terraform Dependencies` workflow (which sets up the storage container for terraform state), and then run the `Terraform ES-APIM Deploy` workflow. (For the deployment workflow to run the deploy step and actually deploy the infrastructure, I had to comment out the line "if: github.event_name == 'pull_request'" under the deploy step.)
+The original instructions for this step which describe how to deploy using bicep are listed in the paragraphs below. You can deploy also using Terraform, rather than using bicep. This involves manually running two workflows with the 'run workflow' button. First run the `Terraform Dependencies` workflow (which sets up the storage container for terraform state), and then run the `Terraform ES-APIM Deploy` workflow. (For the deployment workflow to run the deploy step and actually deploy the infrastructure, I had to comment out the line "if: github.event_name == 'pull_request'" under the deploy step.)
 
 ![terraform workflows](/docs/images/terraform_workflows.png)
 
@@ -237,7 +237,7 @@ Alternatively, you can also trigger the workflow by going to **Actions** tab and
 - Make sure that the *Default* agent pool has _Grant access to all pipelines_ selected
 - Create an [Artifacts Feed](https://learn.microsoft.com/en-us/azure/devops/artifacts/get-started-nuget?view=azure-devops&tabs=windows#create-a-feed). For ex, name as todo-apis
 - Give the Build Service account `Contributor` permissions (which may require removing it then re-adding it with the `Contributor` role)
-- You may also need to set up a pool in Agent Pools, and Parallel jobs (Microsoft offers a free tier of parallel jobs, you need to fill out a short form to apply for access to this). If your repo is in a new Organisation in Azure DevOps you are almost certain to need to set these up
+- You may also need to set up a pool in Agent Pools, and configure Parallel jobs (Microsoft offers a free tier of parallel jobs, you need to fill out a short form to apply for access to this). If your repo is in a new Organisation in Azure DevOps you are almost certain to need to set these up
 
 ## Deploy the backend
 
