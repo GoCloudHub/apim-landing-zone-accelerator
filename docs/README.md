@@ -152,7 +152,7 @@ For a more detailed overview, see [Configure an app to trust a GitHub repo](/azu
 
 ---
 
-### 5. Create GitHub Secrets
+### 5. Create GitHub Secrets and variables
 
 You need to provide your application's Client ID, Tenant ID and Subscription ID to the login action. These values can either be provided directly in the workflow or can be stored in GitHub secrets and referenced in your workflow. Saving the values as GitHub secrets is the more secure option.
 
@@ -170,15 +170,22 @@ c.) Generate the following secrets in your GitHub repository settings
 - `AZURE_TF_STATE_RESOURCE_GROUP_NAME` - Name of the Resource Group where the Terraform remote state storage account resides
 - `AZURE_TF_STATE_STORAGE_ACCOUNT_NAME` - Name of the Storage Account that contains the Terraform remote state container
 - `AZURE_TF_STATE_STORAGE_CONTAINER_NAME` - Name of the Storage Account Container to initialize the Terraform remote state
+- `AZURE_TF_STATE_STORAGE_CONTAINER_KEY` - The object key within the container for storing the Terraform remote state
 - `PAT` -  Azure DevOps or GitHub personal access token (PAT) used to setup the CI/CD agent
+- `VM_USER` - The user name to be used as the Administrator for all VMs created by this deployment
 - `VM_PW` - The password to be used as the Administrator for all VMs created by this deployment
 - `FQDN` - Fully qualified domain name that will be used for the application gateway
 - `CERTPW` - Required if *CERT_TYPE* is *custom*. The certificate should be available as appgw.pfx in the [certs](/reference-implementations/AppGW-IAPIM-Func/bicep/gateway/certs/) folder  
 
 d.) Save each secret by selecting Add secret.
 
+e.) Switch from the 'Secrets' tab to the 'Variables' tab and add the variable `WORKLOAD_NAME` - a short name for this workload, this will form a part of the names of many of the resources created by the deployment. Note that when you have deleted all of the infrastructure and want to redeploy, it appears you need to update this variable to a different value. (Some parts don't appear to be completely cleared away, such as the key vault and it requires a globally unique name.)
 
 ### 6. Run the workflow
+
+The original instructions for this step which describe how to deploy using bicep are listed in the paragraphs below. You can deploy also using Terraform, rather than using bicep. This involves manually running two workflows; first run the `Terraform Dependencies` workflow (which sets up the storage container for terraform state), and then run the `Terraform ES-APIM Deploy` workflow. (For the deployment workflow to run the deploy step and actually deploy the infrastructure, I had to comment out the line "if: github.event_name == 'pull_request'" under the deploy step.)
+
+![terraform workflows](/docs/images/terraform_workflows.png)
 
 There is a workflow file **es-apim.yml** created under [.github/workflows](/.github/workflows/es-apim.yml).
 
@@ -228,14 +235,19 @@ Alternatively, you can also trigger the workflow by going to **Actions** tab and
 - [Import](https://learn.microsoft.com/en-us/azure/devops/repos/git/import-git-repository?view=azure-devops) this repo to an Azure DevOps Repo
 - Create two [ARM service connections](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) each scoped to the apim resource group and the function app resource group
 - Make sure that the *Default* agent pool has _Grant access to all pipelines_ selected
+- Create an [Artifacts Feed](https://learn.microsoft.com/en-us/azure/devops/artifacts/get-started-nuget?view=azure-devops&tabs=windows#create-a-feed). For ex, name as todo-apis
+- Give the Build Service account `Contributor` permissions (which may require removing it then re-adding it with the `Contributor` role)
+- You may also need to set up a pool in Agent Pools, and Parallel jobs (Microsoft offers a free tier of parallel jobs, you need to fill out a short form to apply for access to this). If your repo is in a new Organisation in Azure DevOps you are almost certain to need to set these up
 
 ## Deploy the backend
+
+_note that running the pipeline as is will give a warning about not having permission to perform the action 'Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action' on the apim subnet. This appears not to be critical, as the API is still accessible without resolving the warning. However, if you do want to avoid the warning then the service connection with access to the backend/function app resource group needs to be given permission to the networking resource group too (you can do this by going to 'Access Control (IAM)' for the networking resource group in the Azure console)_
 
 - Create a pipeline using the [deploy-function.yml](/src/pipelines/deploy-function.yml) file
 - Add [variables](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#access-variables-through-the-environment) to the pipeline 
   - armServiceConnection - the service connection scoped to the backend resource group
   - functionAppName - name of the function app in the backend resource group
-  - poolName
+  - poolName (I'm not sure if this is necessary, as I don't believe that I needed to add this)
 - Run the pipeline
 
 _note: pool name is Default if using the construction set scripts_
@@ -246,6 +258,7 @@ _note: pool name is Default if using the construction set scripts_
 
 - Create a pipeline using the [apim-generator.yml](/src/pipelines/apim-generator.yml) file. This generates the ARM templates from open api specification
 - Add variables for
+  - artifacts-feed
   - poolName
 - Run the pipeline
 
@@ -258,7 +271,32 @@ _note:pool name is Default if using the construction set scripts_
   - poolName
   - apimResourceGroup
   - apimName
+  - artifacts-feed
   - todoServiceUrl - url of the function app
   - armServiceConnection - the service connection scoped to the apim resource group
-  - teamOneBuildPipelineId - Id of the generator pipeline which can be seen in the url
+  - teamOneBuildPipelineId - Id of the generator pipeline which can be seen in the url (I don't think this is required, I can't see any reference to it in the pipeline's yml file)
 - Run the pipeline
+
+### 9. Test the APIs
+
+At this point, if everything has run successfully then you should be able to send requests to the API. The base url is:
+
+https://\<appGatewayPublicIP\>/todo/todo
+
+## Sample curl commands to test the various routes
+_Note that the `--insecure` flag is required because the certificate is self-signed and so we need to bypass the SSL verification in order to send the request_
+
+### Get all todos:
+curl https://\<appGatewayPublicIP\>/todo/todo --insecure
+
+### Get a specific todo by id:
+curl https://\<appGatewayPublicIP\>/todo/todo/{id} --insecure
+
+### Create a new todo:
+curl https://\<appGatewayPublicIP\>/todo/todo --insecure -d '{"TaskDescription": "Query this API"}'
+
+### Update a todo:
+curl -X PUT https://\<appGatewayPublicIP\>/todo/todo/{id} --insecure -d '{"isCompleted": true, "taskDescription": "Query this API using curl commands"}'
+
+### Delete a todo:
+curl -X DELETE https://\<appGatewayPublicIP\>/todo/todo/{id} --insecure
